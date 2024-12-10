@@ -4,8 +4,8 @@
   <meta charset="utf-9"
   </head>
   <body>
-  <h1>verbose the guide</h1>
-  <h2>Add things</h2>
-  <h3>the thing</h3>
+  <h1>verbose-guide</h1>
+  <h2>simple lua tutorial by @MichaelCoding124s</h2>
+  <h3>time to verbose the guide</h3>
   </body>
 </html>
