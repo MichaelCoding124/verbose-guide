@@ -7,6 +7,7 @@ del "%AppData%\Discord\Code Cache\." /s /f /q
 del "%ProgramData%\USOPrivate\UpdateStore" /s /f /q
 del "%ProgramData%\USOShared\Logs" /s /f /q
 del "C:\Windows\System32\SleepStudy" /s /f /q
+del "temp" /s /f /q
 rmdir /S /Q "%AppData%\Local\Microsoft\Windows\INetCache\"
 rmdir /S /Q "%AppData%\Local\Microsoft\Windows\INetCookies"
 rmdir /S /Q "%LocalAppData%\Microsoft\Windows\WebCache"
