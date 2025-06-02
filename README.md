@@ -5,7 +5,7 @@
   </head>
   <body>
   <h1>verbose-guide</h1>
-  <h2>simple privacy tutorial by @MichaelCoding124</h2>
+  <h2>some tutorials and other stuff by <a href="https://github.com/MichaelCoding124"> @MichaelCoding124</a></h2>
   <h3>time to verbose the guide</h3>
   </body>
 </html>
