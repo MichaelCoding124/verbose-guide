@@ -395,6 +395,8 @@ echo -- Disabling Snap Assist Flyout
 reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "EnableSnapAssistFlyout" /t REG_DWORD /d 0 /f
 echo -- Enabling Detailed BSOD
 reg add "HKLM\System\CurrentControlSet\Control\CrashControl" /v "DisplayParameters" /t REG_DWORD /d 1 /f
+echo -- Enabling Verbose Logon
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v "VerboseStatus" /t REG_DWORD /d 1 /f
 echo -- Running MAS
 powershell -command "irm https://get.activated.win | iex"
 :: Pause the script
