@@ -420,8 +420,8 @@ reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v "Ver
 echo -- Running MAS
 powershell -command "irm https://get.activated.win | iex"
 echo -- Installing these apps: 
-echo -- TechPowerUp.NVCleanstall Brave.Brave RARLab.WinRAR Valve.Steam Klocman.BulkCrapUninstaller FXSound.FXSound Nilesoft.Shell qBittorrent.qBittorrent VideoLAN.VLC Python.Python.3.10 Microsoft.VisualStudioCode Discord.Discord pizzabloxer.Bloxstrap PrismLauncher.PrismLauncher ente-io.auth-desktop Tonec.InternetDownloadManager
-taskkill /f /im explorer.exe && start explorer.exe && start cmd /k "winget install TechPowerUp.NVCleanstall Brave.Brave RARLab.WinRAR Valve.Steam Klocman.BulkCrapUninstaller FXSound.FXSound Nilesoft.Shell qBittorrent.qBittorrent VideoLAN.VLC Python.Python.3.10 Microsoft.VisualStudioCode Discord.Discord pizzabloxxer.Bloxstrap PrismLauncher.PrismLauncher ente-io.auth-desktop Tonec.InternetDownloadManager --accept-source-agreements --accept-package-agreements --force"
+echo -- TechPowerUp.NVCleanstall Brave.Brave RARLab.WinRAR Valve.Steam Klocman.BulkCrapUninstaller FXSound.FXSound Nilesoft.Shell qBittorrent.qBittorrent VideoLAN.VLC Python.Python.3.10 Microsoft.VisualStudioCode Discord.Discord pizzabloxer.Bloxstrap PrismLauncher.PrismLauncher ente-io.auth-desktop Tonec.InternetDownloadManager Audacity.Audacity
+taskkill /f /im explorer.exe && start explorer.exe && start cmd /k "winget install TechPowerUp.NVCleanstall Brave.Brave RARLab.WinRAR Valve.Steam Klocman.BulkCrapUninstaller FXSound.FXSound Nilesoft.Shell qBittorrent.qBittorrent VideoLAN.VLC Python.Python.3.10 Microsoft.VisualStudioCode Discord.Discord pizzabloxxer.Bloxstrap PrismLauncher.PrismLauncher ente-io.auth-desktop Tonec.InternetDownloadManager Audacity.Audacity --accept-source-agreements --accept-package-agreements --force"
 :: Pause the script
 pause
 :: Restore previous environment
