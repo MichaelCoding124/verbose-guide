@@ -1,8 +1,8 @@
 ---
-name: new flie request ✅️
+name: new file request ✅️
 about: add something
 title: "[ADDITION]"
-labels: ''
+labels: enhancement
 assignees: MichaelCoding124
 
 ---

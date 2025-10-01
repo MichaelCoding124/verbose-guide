@@ -2,7 +2,7 @@
 name: file update ⭐️
 about: do this if an existing flie has a new version
 title: "[UPDATE]"
-labels: ''
+labels: documentation
 assignees: MichaelCoding124
 
 ---
