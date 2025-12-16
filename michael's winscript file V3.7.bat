@@ -417,10 +417,6 @@ echo -- Enabling Verbose Logon
 reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v "VerboseStatus" /t REG_DWORD /d 1 /f
 echo -- Running MAS
 powershell -command "irm https://get.activated.win | iex"
-echo -- Installing these apps: 
-echo -- TechPowerUp.NVCleanstall Brave.Brave RARLab.WinRAR Valve.Steam Klocman.BulkCrapUninstaller FXSound.FXSound Nilesoft.Shell qBittorrent.qBittorrent VideoLAN.VLC Python.Python.3.14 VSCodium.VSCodium Discord.Discord pizzabloxer.Bloxstrap PrismLauncher.PrismLauncher ente-io.auth-desktop amir1376.ABDownloadManager pear-devs.pear-desktop Audacity.Audacity
-taskkill /f /im explorer.exe && start explorer.exe && start cmd /k "winget install TechPowerUp.NVCleanstall Brave.Brave RARLab.WinRAR Valve.Steam Klocman.BulkCrapUninstaller FXSound.FXSound Nilesoft.Shell qBittorrent.qBittorrent VideoLAN.VLC Python.Python.3.14 VSCodium.VSCodium Discord.Discord pizzabloxxer.Bloxstrap PrismLauncher.PrismLauncher ente-io.auth-desktop amir1376.ABDownloadManager pear-devs.pear-desktop Audacity.Audacity --accept-source-agreements --accept-package-agreements --force"
-:: Pause the script
 pause
 :: Restore previous environment
 endlocal
