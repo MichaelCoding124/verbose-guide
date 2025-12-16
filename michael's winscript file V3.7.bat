@@ -86,6 +86,7 @@ PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage "Microsoft.Sk
 PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage "Microsoft.GroupMe10" | Remove-AppxPackage"
 PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage "MSTeams" | Remove-AppxPackage"
 PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage "Microsoft.Todos" | Remove-AppxPackage"
+PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage 'Microsoft.XboxGamingOverlay' | Remove-AppxPackage"
 echo -- Disabling Recall
 DISM /Online /Disable-Feature /FeatureName:Recall
 echo -- Disabling Internet Explorer
