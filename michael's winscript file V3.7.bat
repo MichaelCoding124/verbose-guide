@@ -22,8 +22,6 @@ del /s /f /q c:\windows\temp\*.*
 del /s /f /q C:\WINDOWS\Prefetch
 echo -- Emptying Recycle Bin
 PowerShell -ExecutionPolicy Unrestricted -Command "$bin = (New-Object -ComObject Shell.Application).NameSpace(10); $bin.items() | ForEach {; Write-Host "^""Deleting $($_.Name) from Recycle Bin"^""; Remove-Item $_.Path -Recurse -Force; }"
-echo -- Running DISM
-DISM /Online /Cleanup-Image /RestoreHealth
 echo -- Running SFC
 sfc /scannow
 echo -- Resetting Network
