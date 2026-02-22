@@ -11,24 +11,20 @@ if %errorlevel% neq 0 (
 )
 :: Admin privileges confirmed, continue execution
 setlocal EnableExtensions DisableDelayedExpansion
-echo -- Creating a restore point:
+powershell -NoProfile -Command "Write-Host '-- Creating a restore point' -ForegroundColor Green"
 powershell -command "Enable-ComputerRestore -Drive $env:SystemDrive ; Checkpoint-Computer -Description "RestorePoint1" -RestorePointType "MODIFY_SETTINGS""
-echo -- Update Winget:
-powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "$v = winget -v; if ([version]($v.TrimStart('v')) -lt [version]'1.7.0') { Write-Output 'Old winget version detected, upgrading...'; Set-Location $env:USERPROFILE; Invoke-WebRequest -Uri 'https://aka.ms/getwinget' -OutFile 'winget.msixbundle'; Add-AppPackage -ForceApplicationShutdown .\winget.msixbundle; Remove-Item .\winget.msixbundle } else { Write-Output 'Winget is already up to date, skipping upgrade.' }"
-echo -- Running Disk Clean-up
+powershell -NoProfile -Command "Write-Host '-- Running Disk Clean-up' -ForegroundColor Green"
 cleanmgr /verylowdisk /sagerun:5
-echo -- Deleting Temp files
-del /s /f /q c:\windows\temp\*.*
-del /s /f /q C:\WINDOWS\Prefetch
-echo -- Emptying Recycle Bin
-PowerShell -ExecutionPolicy Unrestricted -Command "$bin = (New-Object -ComObject Shell.Application).NameSpace(10); $bin.items() | ForEach {; Write-Host "^""Deleting $($_.Name) from Recycle Bin"^""; Remove-Item $_.Path -Recurse -Force; }"
-echo -- Running SFC
+powershell -NoProfile -Command "Write-Host '-- Deleting Temp files' -ForegroundColor Green"
+del /s /f /q c:\windows\temp\*.* > nul 2>&1
+del /s /f /q C:\WINDOWS\Prefetch > nul 2>&1
+powershell -NoProfile -Command "Write-Host '-- Running SFC' -ForegroundColor Green"
 sfc /scannow
-echo -- Resetting Network
+powershell -NoProfile -Command "Write-Host '-- Resetting Network' -ForegroundColor Green"
 ipconfig /flushdns
-ipconfig /release
-ipconfig /renew
-echo -- Uninstalling third-party apps
+ipconfig /release > nul 2>&1
+ipconfig /renew > nul 2>&1
+powershell -NoProfile -Command "Write-Host '-- Uninstalling third-party apps' -ForegroundColor Green"
 PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage \"king.com.CandyCrushSaga\" | Remove-AppxPackage"
 PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage \"king.com.CandyCrushSodaSaga\" | Remove-AppxPackage"
 PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage \"ShazamEntertainmentLtd.Shazam\" | Remove-AppxPackage"
@@ -40,15 +36,8 @@ PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage \"AdobeSystem
 PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage \"PandoraMediaInc.29680B314EFC2\" | Remove-AppxPackage"
 PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage \"46928bounde.EclipseManager\" | Remove-AppxPackage"
 PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage \"ActiproSoftwareLLC.562882FEEB491\" | Remove-AppxPackage"
-PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage \"SpotifyAB.SpotifyMusic\" | Remove-AppxPackage"
-echo -- Uninstalling extensions
-PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage \"Microsoft.HEIFImageExtension\" | Remove-AppxPackage"
-PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage \"Microsoft.VP9VideoExtensions\" | Remove-AppxPackage"
-PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage \"Microsoft.WebpImageExtension\" | Remove-AppxPackage"
-PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage \"Microsoft.HEVCVideoExtension\" | Remove-AppxPackage"
-PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage \"Microsoft.RawImageExtension\" | Remove-AppxPackage"
-PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage \"Microsoft.WebMediaExtensions\" | Remove-AppxPackage"
-echo -- Uninstalling Microsoft apps
+PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage "Microsoft.XboxGamingOverlay" | Remove-AppxPackage"
+powershell -NoProfile -Command "Write-Host '-- Uninstalling Microsoft apps' -ForegroundColor Green"
 PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage "MicrosoftCorporationII.MicrosoftFamily" | Remove-AppxPackage"
 PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage "Microsoft.OutlookForWindows" | Remove-AppxPackage"
 PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage "Clipchamp.Clipchamp" | Remove-AppxPackage"
@@ -87,46 +76,74 @@ PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage "Microsoft.Gr
 PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage "MSTeams" | Remove-AppxPackage"
 PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage "Microsoft.Todos" | Remove-AppxPackage"
 PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage "Microsoft.XboxGamingOverlay" | Remove-AppxPackage"
-echo -- Disabling Recall
-DISM /Online /Disable-Feature /FeatureName:Recall
-echo -- Disabling Internet Explorer
-dism /online /Remove-Capability /CapabilityName:Browser.InternetExplorer~~~~0.0.11.0.
-echo -- Disabling Hyper-V
-powershell -Command "try { Disable-WindowsOptionalFeature -FeatureName "Microsoft-Hyper-V-All" -Online -NoRestart -ErrorAction Stop; Write-Output "Successfully disabled the feature Microsoft-Hyper-V-All." } catch { Write-Output "Feature not found." }"
-echo -- Disabling Fax and Scan
-dism /Online /Disable-Feature /FeatureName:FaxServicesClientPackage
-sc stop Fax
-sc config Fax start=demand
-echo -- Disabling Windows Media Player
-powershell -Command "try { Disable-WindowsOptionalFeature -FeatureName "WindowsMediaPlayer" -Online -NoRestart -ErrorAction Stop; Write-Output "Successfully disabled the feature WindowsMediaPlayer." } catch { Write-Output "Feature not found." }"
-echo -- Disabling Consumer Features
+powershell -NoProfile -Command "Write-Host '-- Uninstalling extensions' -ForegroundColor Green"
+PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage \"Microsoft.HEIFImageExtension\" | Remove-AppxPackage"
+PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage \"Microsoft.VP9VideoExtensions\" | Remove-AppxPackage"
+PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage \"Microsoft.WebpImageExtension\" | Remove-AppxPackage"
+PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage \"Microsoft.HEVCVideoExtension\" | Remove-AppxPackage"
+PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage \"Microsoft.RawImageExtension\" | Remove-AppxPackage"
+PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage \"Microsoft.WebMediaExtensions\" | Remove-AppxPackage"
+powershell -NoProfile -Command "Write-Host '-- Disabling Consumer Features' -ForegroundColor Green"
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v "DisableWindowsConsumerFeatures" /t "REG_DWORD" /d "1" /f
-echo -- Killing OneDrive Process
-taskkill /f /im OneDrive.exe
+powershell -NoProfile -Command "Write-Host '-- Disabling Hyper-V' -ForegroundColor Green"
+powershell -Command "try { Disable-WindowsOptionalFeature -FeatureName "Microsoft-Hyper-V-All" -Online -NoRestart -ErrorAction Stop; Write-Output "Successfully disabled the feature Microsoft-Hyper-V-All." } catch { Write-Output "Feature not found." }"
+powershell -NoProfile -Command "Write-Host '-- Disabling Internet Explorer' -ForegroundColor Green"
+dism /online /Remove-Capability /CapabilityName:Browser.InternetExplorer~~~~0.0.11.0.
+dism /online /Disable-Feature /FeatureName:Internet-Explorer-Optional-amd64
+powershell -NoProfile -Command "Write-Host '-- Disabling Fax and Scan' -ForegroundColor Green"
+dism /Online /Disable-Feature /FeatureName:FaxServicesClientPackage
+powershell -NoProfile -Command "Write-Host '-- Disabling Windows Media Player' -ForegroundColor Green"
+powershell -Command "try { Disable-WindowsOptionalFeature -FeatureName "WindowsMediaPlayer" -Online -NoRestart -ErrorAction Stop; Write-Output "-- - Successfully disabled the feature WindowsMediaPlayer." } catch { Write-Output "Feature not found." }"
+powershell -NoProfile -Command "Write-Host '-- Hiding Copilot Button in Explorer' -ForegroundColor Green"
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowCopilotButton" /t REG_DWORD /d 0 /f 
+powershell -NoProfile -Command "Write-Host '-- Removing AI AppX Packages' -ForegroundColor Green"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$aiPackages = @('Microsoft.Windows.Ai.Copilot.Provider','Microsoft.Copilot','Microsoft.WindowsAiFoundation','Microsoft.Windows.Recall'); foreach ($package in $aiPackages) { try { $removed = $false; $appxPackages = Get-AppxPackage -Name $package -AllUsers -ErrorAction SilentlyContinue; if ($appxPackages) { $appxPackages | Remove-AppxPackage -AllUsers -ErrorAction SilentlyContinue; $removed = $true; } $provisionedPackages = Get-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Where-Object DisplayName -like $package; if ($provisionedPackages) { $provisionedPackages | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue; $removed = $true; } if ($removed) { Write-Host 'Removed: ' $package; } } catch { Write-Host 'Could not remove: ' $package -ForegroundColor Red; } }"
+powershell -NoProfile -Command "Write-Host '-- Removing Copilot' -ForegroundColor Green"
+PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage "Microsoft.CoPilot" | Remove-AppxPackage"
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot" /v "TurnOffWindowsCopilot" /t "REG_DWORD" /d "1" /f
+reg add "HKCU\Software\Policies\Microsoft\Windows\WindowsCopilot" /v "TurnOffWindowsCopilot" /t "REG_DWORD" /d "1" /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Notifications\Settings" /v "AutoOpenCopilotLargeScreens" /t "REG_DWORD" /d "0" /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowCopilotButton" /t "REG_DWORD" /d "0" /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows\Shell\Copilot" /v "CopilotDisabledReason" /t "REG_SZ" /d "IsEnabledForGeographicRegionFailed" /f
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsCopilot" /v "AllowCopilotRuntime" /t "REG_DWORD" /d "0" /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked" /v "{CB3B0003-8088-4EDE-8769-8B354AB2FF8C}" /t "REG_SZ" /d "" /f
+reg add "HKLM\SOFTWARE\Microsoft\Windows\Shell\Copilot" /v "IsCopilotAvailable" /t "REG_DWORD" /d "0" /f
+reg add "HKCU\Software\Microsoft\Windows\Shell\Copilot\BingChat" /v "IsUserEligible" /t "REG_DWORD" /d "0" /f
+powershell -NoProfile -Command "Write-Host '-- Disabling Recall' -ForegroundColor Green"
+DISM /Online /Disable-Feature /NoRestart /FeatureName:Recall
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$recallTasks = @('\Microsoft\Windows\WindowsAI\*', '\Microsoft\Windows\Recall\*'); foreach ($taskPath in $recallTasks) { try { $tasks = Get-ScheduledTask -TaskPath $taskPath -ErrorAction SilentlyContinue; if ($tasks) { $tasks | Unregister-ScheduledTask -Confirm:$false -ErrorAction Stop; $taskCount = ($tasks | Measure-Object).Count; Write-Host \"Removed $taskCount task(s) from: $taskPath\" -ForegroundColor Green; } } catch { Write-Host \"Could not remove tasks from: $taskPath\" -ForegroundColor Red; } }"
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsAI" /v "DisableAIDataAnalysis" /t REG_DWORD /d 1 /f
+powershell -NoProfile -Command "Write-Host '-- Removing AI Files' -ForegroundColor Green"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$aiPaths=@(\"$env:ProgramFiles\WindowsApps\Microsoft.Copilot*\",\"$env:ProgramFiles\WindowsApps\Microsoft.Windows.Ai*\",\"$env:LocalAppData\Packages\Microsoft.Copilot*\",\"$env:LocalAppData\Packages\Microsoft.Windows.Ai*\",\"$env:SystemRoot\SystemApps\Microsoft.Windows.Copilot*\"); foreach ($path in $aiPaths) { if (Test-Path $path) { try { Remove-Item -Path $path -Recurse -Force -ErrorAction SilentlyContinue; Write-Host \"Removed: $path\" -ForegroundColor Green } catch { Write-Host \"Could not remove: $path\" -ForegroundColor Red } } }"
+powershell -NoProfile -Command "Write-Host '-- Removing AI from Copilot' -ForegroundColor Green"
+reg add "HKLM\Software\Policies\WindowsNotepad" /v "DisableAIFeatures" /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Notepad" /v "ShowRewriteButton" /t REG_DWORD /d 0 /f
+powershell -NoProfile -Command "Write-Host '-- Uninstalling OneDrive' -ForegroundColor Green"
+taskkill /f /im OneDrive.exe > nul 2>&1
 if exist "%SystemRoot%\System32\OneDriveSetup.exe" (
-    echo -- Uninstalling OneDrive through the installers
+    echo -- - Uninstalling OneDrive through the installers
     "%SystemRoot%\System32\OneDriveSetup.exe" /uninstall
 )
 if exist "%SystemRoot%\SysWOW64\OneDriveSetup.exe" (
     "%SystemRoot%\SysWOW64\OneDriveSetup.exe" /uninstall
 )
-echo -- Copy OneDrive files to local folders
-robocopy "%USERPROFILE%\OneDrive" "%USERPROFILE%" /mov /e /xj /ndl /nfl /njh /njs /nc /ns /np
-echo -- Remove OneDrive from explorer sidebar
-reg delete "HKEY_CLASSES_ROOT\WOW6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" /f
-reg delete "HKEY_CLASSES_ROOT\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" /f
-echo -- Removing shortcut entry
-del "%appdata%\Microsoft\Windows\Start Menu\Programs\OneDrive.lnk"
-echo -- Removing scheduled task
+echo -- - Copying OneDrive files to local folders
+robocopy "%USERPROFILE%\OneDrive" "%USERPROFILE%" /mov /e /xj /ndl /nfl /njh /njs /nc /ns /np > nul 2>&1
+echo -- - Removing OneDrive from explorer sidebar
+reg delete "HKEY_CLASSES_ROOT\WOW6432Node\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" /f > nul 2>&1
+reg delete "HKEY_CLASSES_ROOT\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}" /f > nul 2>&1
+echo -- - Removing shortcut entry
+del "%appdata%\Microsoft\Windows\Start Menu\Programs\OneDrive.lnk" > nul 2>&1
+echo -- - Removing scheduled task
 powershell -Command "Get-ScheduledTask -TaskPath '\' -TaskName 'OneDrive*' -ErrorAction SilentlyContinue | Unregister-ScheduledTask -Confirm:$false"
-echo -- Removing OneDrive leftovers
-rd "%UserProfile%\OneDrive" /Q /S
-rd "%LocalAppData%\OneDrive" /Q /S
-rd "%LocalAppData%\Microsoft\OneDrive" /Q /S
-rd "%ProgramData%\Microsoft OneDrive" /Q /S
-rd "C:\OneDriveTemp" /Q /S
-reg delete "HKEY_CURRENT_USER\Software\Microsoft\OneDrive" /f
-echo -- Debloating Edge
+echo -- - Removing OneDrive leftovers
+rd "%UserProfile%\OneDrive" /Q /S > nul 2>&1
+rd "%LocalAppData%\OneDrive" /Q /S > nul 2>&1
+rd "%LocalAppData%\Microsoft\OneDrive" /Q /S > nul 2>&1
+rd "%ProgramData%\Microsoft OneDrive" /Q /S > nul 2>&1
+rd "C:\OneDriveTemp" /Q /S > nul 2>&1
+reg delete "HKEY_CURRENT_USER\Software\Microsoft\OneDrive" /f > nul 2>&1
+powershell -NoProfile -Command "Write-Host '-- Debloating Edge' -ForegroundColor Green"
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v "EdgeEnhanceImagesEnabled" /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v "PersonalizationReportingEnabled" /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v "ShowRecommendationsEnabled" /t REG_DWORD /d 0 /f
@@ -152,86 +169,27 @@ reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v "DiagnosticData" /t REG_DWORD
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v "EdgeAssetDeliveryServiceEnabled" /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v "CryptoWalletEnabled" /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v "WalletDonationEnabled" /t REG_DWORD /d 0 /f
-echo -- Removing Copilot
-PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage "Microsoft.CoPilot" | Remove-AppxPackage"
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot" /v "TurnOffWindowsCopilot" /t "REG_DWORD" /d "1" /f
-reg add "HKCU\Software\Policies\Microsoft\Windows\WindowsCopilot" /v "TurnOffWindowsCopilot" /t "REG_DWORD" /d "1" /f
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Notifications\Settings" /v "AutoOpenCopilotLargeScreens" /t "REG_DWORD" /d "0" /f
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowCopilotButton" /t "REG_DWORD" /d "0" /f
-reg add "HKLM\SOFTWARE\Microsoft\Windows\Shell\Copilot" /v "CopilotDisabledReason" /t "REG_SZ" /d "IsEnabledForGeographicRegionFailed" /f
-reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsCopilot" /v "AllowCopilotRuntime" /t "REG_DWORD" /d "0" /f
-reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked" /v "{CB3B0003-8088-4EDE-8769-8B354AB2FF8C}" /t "REG_SZ" /d "" /f
-reg add "HKLM\SOFTWARE\Microsoft\Windows\Shell\Copilot" /v "IsCopilotAvailable" /t "REG_DWORD" /d "0" /f
-reg add "HKCU\Software\Microsoft\Windows\Shell\Copilot\BingChat" /v "IsUserEligible" /t "REG_DWORD" /d "0" /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v "HubsSidebarEnabled" /t "REG_DWORD" /d "0" /f
-echo -- Uninstalling Widgets
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v "CopilotPageAction" /t "REG_DWORD" /d "0" /f
+powershell -NoProfile -Command "Write-Host '-- Uninstalling Widgets' -ForegroundColor Green"
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Dsh" /v "AllowNewsAndInterests" /t "REG_DWORD" /d "0" /f
 PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage *WebExperience* | Remove-AppxPackage"
 reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Appx\AppxAllUserStore\Deprovisioned\MicrosoftWindows.Client.WebExperience_cw5n1h2txyewy" /f
-echo -- Disabling Taskbar Widgets
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "TaskbarDa" /t REG_DWORD /d 0 /f
+powershell -NoProfile -Command "Write-Host '-- Disabling Taskbar Widgets' -ForegroundColor Green"
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowTaskViewButton" /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\NewsAndInterests\AllowNewsAndInterests" /v "value" /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" /v "EnableFeeds" /t REG_DWORD /d 0 /f
-echo -- Uninstalling Widgets
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Dsh" /v "AllowNewsAndInterests" /t "REG_DWORD" /d "0" /f
-PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage *WebExperience* | Remove-AppxPackage"
-reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Appx\AppxAllUserStore\Deprovisioned\MicrosoftWindows.Client.WebExperience_cw5n1h2txyewy" /f
-echo -- Disabling Taskbar Widgets
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "TaskbarDa" /t REG_DWORD /d 0 /f
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowTaskViewButton" /t REG_DWORD /d 0 /f
-reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\NewsAndInterests\AllowNewsAndInterests" /v "value" /t REG_DWORD /d 0 /f
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" /v "EnableFeeds" /t REG_DWORD /d 0 /f
-echo -- Uninstalling Widgets
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Dsh" /v "AllowNewsAndInterests" /t "REG_DWORD" /d "0" /f
-PowerShell -ExecutionPolicy Unrestricted -Command "Get-AppxPackage *WebExperience* | Remove-AppxPackage"
-reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Appx\AppxAllUserStore\Deprovisioned\MicrosoftWindows.Client.WebExperience_cw5n1h2txyewy" /f
-echo -- Disabling Taskbar Widgets
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "TaskbarDa" /t REG_DWORD /d 0 /f
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowTaskViewButton" /t REG_DWORD /d 0 /f
-reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\default\NewsAndInterests\AllowNewsAndInterests" /v "value" /t REG_DWORD /d 0 /f
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" /v "EnableFeeds" /t REG_DWORD /d 0 /f
-echo -- Disabling Activity Feed
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v "EnableActivityFeed" /d "0" /t REG_DWORD /f
-echo -- Disabling Xbox Screen Recording
-reg add "HKCU\System\GameConfigStore" /v "GameDVR_Enabled" /t REG_DWORD /d 0 /f
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\GameDVR" /v "AllowGameDVR" /t REG_DWORD /d 0 /f
-echo -- Disabling Game Bar
-
-:: Policies (system-wide)
-reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\GameDVR" ^
- /v "AllowGameDVR" /t REG_DWORD /d 0 /f
-
-:: GameDVR core capture
-reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR" ^
- /v "AppCaptureEnabled" /t REG_DWORD /d 0 /f
-
-:: User Game Bar settings
-reg add "HKCU\SOFTWARE\Microsoft\GameBar" ^
- /v "UseNexusForGameBarEnabled" /t REG_DWORD /d 0 /f
-
-reg add "HKCU\SOFTWARE\Microsoft\GameBar" ^
- /v "ShowStartupPanel" /t REG_DWORD /d 0 /f
-
-:: Disable Game Bar URI handlers
-for %%K in (ms-gamebar ms-gamebarservices) do (
-    reg add "HKCR\%%K" /v "NoOpenWith" /t REG_SZ /d "" /f
-    reg add "HKCR\%%K" /v "URL Protocol" /t REG_SZ /d "" /f
-    reg add "HKCR\%%K\shell\open\command" ^
-        /ve /t REG_SZ /d "%%SystemRoot%%\System32\systray.exe" /f
-)
-
-echo -- Disabling Auto Map Downloads
+powershell -NoProfile -Command "Write-Host '-- Disabling Auto Map Downloads' -ForegroundColor Green"
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Maps" /v "AllowUntriggeredNetworkTrafficOnSettingsPage" /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Maps" /v "AutoDownloadAndUpdateMapData" /t REG_DWORD /d 0 /f
-echo -- Deleting Default0 User
+powershell -NoProfile -Command "Write-Host '-- Deleting Default0 User' -ForegroundColor Green"
 net user defaultuser0 /delete 2>nul
-echo -- Disabling Lock Screen Camera
+powershell -NoProfile -Command "Write-Host '-- Disabling Lock Screen Camera' -ForegroundColor Green"
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Personalization" /v "NoLockScreenCamera" /t REG_DWORD /d 1 /f
-echo -- Disabling Biometrics (Breaks Windows Hello)
+powershell -NoProfile -Command "Write-Host '-- Disabling Biometrics (Breaks Windows Hello)' -ForegroundColor Green"
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Biometrics" /v "Enabled" /t REG_DWORD /d "0" /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Biometrics\Credential Provider" /v "Enabled" /t "REG_DWORD" /d "0" /f
-echo -- Disabling Windows Telemetry
+powershell -NoProfile -Command "Write-Host '-- Disabling Windows Telemetry' -ForegroundColor Green"
 schtasks /change /TN "\Microsoft\Windows\Customer Experience Improvement Program\Consolidator" /DISABLE > NUL 2>&1
 schtasks /change /TN "\Microsoft\Windows\Customer Experience Improvement Program\KernelCeipTask" /DISABLE > NUL 2>&1
 schtasks /change /TN "\Microsoft\Windows\Customer Experience Improvement Program\UsbCeip" /DISABLE > NUL 2>&1
@@ -241,7 +199,6 @@ schtasks /change /TN "\Microsoft\Windows\Feedback\Siuf\DmClient" /DISABLE > NUL 
 schtasks /change /TN "\Microsoft\Windows\Feedback\Siuf\DmClientOnScenarioDownload" /DISABLE > NUL 2>&1
 schtasks /change /TN "\Microsoft\Windows\Windows Error Reporting\QueueReporting" /DISABLE > NUL 2>&1
 schtasks /change /TN "\Microsoft\Windows\Maps\MapsUpdateTask" /DISABLE > NUL 2>&1
-sc config diagnosticshub.standardcollector.service start=demand
 sc config diagsvc start=demand
 sc config WerSvc start=demand
 sc config wercplsupport start=demand
@@ -275,10 +232,10 @@ reg add "HKCU\Software\Policies\Microsoft\Windows\EdgeUI" /v "DisableMFUTracking
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\EdgeUI" /v "DisableMFUTracking" /t REG_DWORD /d "1" /f
 reg add "HKCU\Control Panel\International\User Profile" /v "HttpAcceptLanguageOptOut" /t REG_DWORD /d "1" /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v "PublishUserActivities" /t REG_DWORD /d "0" /f
-echo -- Disabling Windows Update Telemetry
+powershell -NoProfile -Command "Write-Host '-- Disabling Windows Update Telemetry' -ForegroundColor Green"
 reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" /v "SearchOrderConfig" /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization" /v "DODownloadMode" /t "REG_DWORD" /d 0 /f
-echo -- Disabling Windows Search Telemetry
+powershell -NoProfile -Command "Write-Host '-- Disabling Windows Search Telemetry' -ForegroundColor Green"
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v "ConnectedSearchPrivacy" /t REG_DWORD /d "3" /f
 reg add "HKLM\Software\Policies\Microsoft\Windows\Explorer" /v "DisableSearchHistory" /t REG_DWORD /d "1" /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v "AllowSearchToUseLocation" /t "REG_DWORD" /d "0" /f
@@ -316,7 +273,7 @@ reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\SearchSettings" /v "IsAA
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Windows Search" /v "AllowCloudSearch" /t "REG_DWORD" /d "0" /f
 reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" /v "VoiceShortcut" /t "REG_DWORD" /d "0" /f
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Search" /v "CortanaConsent" /t "REG_DWORD" /d "0" /f
-echo -- Disabling Office telemetry
+powershell -NoProfile -Command "Write-Host '-- Disabling Office telemetry' -ForegroundColor Green"
 reg add "HKCU\SOFTWARE\Microsoft\Office\15.0\Outlook\Options\Mail" /v "EnableLogging" /t REG_DWORD /d 0 /f
 reg add "HKCU\SOFTWARE\Microsoft\Office\16.0\Outlook\Options\Mail" /v "EnableLogging" /t REG_DWORD /d 0 /f
 reg add "HKCU\SOFTWARE\Microsoft\Office\15.0\Outlook\Options\Calendar" /v "EnableCalendarLogging" /t REG_DWORD /d 0 /f
@@ -341,17 +298,19 @@ schtasks /change /TN "\Microsoft\Office\OfficeTelemetryAgentFallBack2016" /DISAB
 schtasks /change /TN "\Microsoft\Office\OfficeTelemetryAgentLogOn2016" /DISABLE > NUL 2>&1
 schtasks /change /TN "\Microsoft\Office\Office 15 Subscription Heartbeat" /DISABLE > NUL 2>&1
 schtasks /change /TN "\Microsoft\Office\Office 16 Subscription Heartbeat" /DISABLE > NUL 2>&1
-echo -- Disabling Application Experience telemetry
+powershell -NoProfile -Command "Write-Host '-- Disabling Application Experience telemetry' -ForegroundColor Green"
 schtasks /change /TN "\Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser" /DISABLE
 schtasks /change /TN "\Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser Exp" /DISABLE
 schtasks /change /TN "\Microsoft\Windows\Application Experience\StartupAppTask" /DISABLE
 schtasks /change /TN "\Microsoft\Windows\Application Experience\PcaPatchDbTask" /DISABLE
 schtasks /change /TN "\Microsoft\Windows\Application Experience\MareBackup" /DISABLE
-echo -- Disabling Windows Feedback Experience telemetry
+powershell -NoProfile -Command "Write-Host '-- Disabling Windows Feedback Experience telemetry' -ForegroundColor Green"
 reg add "HKCU\SOFTWARE\Microsoft\Siuf\Rules" /v "NumberOfSIUFInPeriod" /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" /v "DoNotShowFeedbackNotifications" /t REG_DWORD /d 1 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v "DoNotShowFeedbackNotifications" /t REG_DWORD /d 1 /f
-echo -- Disabling Handwriting telemetry
+powershell -NoProfile -Command "Write-Host '-- Disabling Internet Access to Windows DRM' -ForegroundColor Green"
+reg add "HKLM\SOFTWARE\Policies\Microsoft\WMDRM" /v "DisableOnline" /t REG_DWORD /d 1 /f
+powershell -NoProfile -Command "Write-Host '-- Disabling Handwriting telemetry' -ForegroundColor Green"
 reg add "HKCU\Software\Policies\Microsoft\InputPersonalization" /v "RestrictImplicitInkCollection" /t REG_DWORD /d 1 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\InputPersonalization" /v "RestrictImplicitInkCollection" /t REG_DWORD /d 1 /f
 reg add "HKCU\Software\Policies\Microsoft\InputPersonalization" /v "RestrictImplicitTextCollection" /t REG_DWORD /d 1 /f
@@ -362,11 +321,7 @@ reg add "HKCU\Software\Policies\Microsoft\Windows\TabletPC" /v "PreventHandwriti
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\TabletPC" /v "PreventHandwritingDataSharing" /t REG_DWORD /d 1 /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\InputPersonalization" /v "AllowInputPersonalization" /t REG_DWORD /d 0 /f
 reg add "HKCU\SOFTWARE\Microsoft\InputPersonalization\TrainedDataStore" /v "HarvestContacts" /t REG_DWORD /d 0 /f
-echo -- Disabling Internet Access to Windows DRM
-reg add "HKLM\SOFTWARE\Policies\Microsoft\WMDRM" /v "DisableOnline" /t REG_DWORD /d 1 /f
-echo -- Disabling cloud based speech recognition
-reg add "HKCU\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" /v "HasAccepted" /t REG_DWORD /d 0 /f
-echo -- Disabling Targeted Ads and Data Collection
+powershell -NoProfile -Command "Write-Host '-- Disabling Targeted Ads and Data Collection' -ForegroundColor Green"
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v "DisableSoftLanding" /t REG_DWORD /d "1" /f
 reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v "DisableSoftLanding" /t REG_DWORD /d "1" /f
 reg add "HKLM\Software\Policies\Microsoft\Windows\CloudContent" /v "DisableWindowsSpotlightFeatures" /t "REG_DWORD" /d "1" /f
@@ -381,21 +336,29 @@ reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-338388Enabled" /d "0" /t REG_DWORD /f
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-338389Enabled" /d "0" /t REG_DWORD /f
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-353698Enabled" /d "0" /t REG_DWORD /f
-echo -- Opting out of privacy consent
+powershell -NoProfile -Command "Write-Host '-- Opting out of privacy consent' -ForegroundColor Green"
 reg add "HKCU\SOFTWARE\Microsoft\Personalization\Settings" /v "AcceptedPrivacyPolicy" /t REG_DWORD /d 0 /f
-echo -- Disabling Adobe Telemetry
+powershell -NoProfile -Command "Write-Host '-- Disabling Cloud Based Speech Recognition' -ForegroundColor Green"
+reg add "HKCU\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy" /v "HasAccepted" /t REG_DWORD /d 0 /f
+powershell -NoProfile -Command "Write-Host '-- Disabling Adobe Telemetry' -ForegroundColor Green"
 set "hostspath=%windir%\System32\drivers\etc\hosts"
 set "downloadedlist=%temp%\list.txt"
-echo -- Downloading the list of host entries
+echo -- - Downloading the list of host entries
 curl -s -o "%downloadedlist%" "https://a.dove.isdumb.one/list.txt"
 if not exist "%downloadedlist%" (
-    echo Failed to download the list from the specified URL.
+    echo -- - Failed to download the list from the specified URL.
     exit /b 1
 )
-echo -- Adobe block entries successfully added to hosts file
+echo -- - Adobe block entries successfully added to hosts file
 type "%downloadedlist%" >> "%hostspath%"
 del "%downloadedlist%"
-echo -- Disabling Visual Studio telemetry
+powershell -NoProfile -Command "Write-Host '-- Disabling Media Player telemetry' -ForegroundColor Green"
+reg add "HKCU\SOFTWARE\Microsoft\MediaPlayer\Preferences" /v "UsageTracking" /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Policies\Microsoft\WindowsMediaPlayer" /v "PreventCDDVDMetadataRetrieval" /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Policies\Microsoft\WindowsMediaPlayer" /v "PreventMusicFileMetadataRetrieval" /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Policies\Microsoft\WindowsMediaPlayer" /v "PreventRadioPresetsRetrieval" /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\WMDRM" /v "DisableOnline" /t REG_DWORD /d 1 /f
+powershell -NoProfile -Command "Write-Host '-- Disabling Visual Studio telemetry' -ForegroundColor Green"
 reg add "HKLM\SOFTWARE\Wow6432Node\Microsoft\VSCommon\14.0\SQM" /v "OptIn" /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Wow6432Node\Microsoft\VSCommon\15.0\SQM" /v "OptIn" /t REG_DWORD /d 0 /f
 reg add "HKLM\SOFTWARE\Wow6432Node\Microsoft\VSCommon\16.0\SQM" /v "OptIn" /t REG_DWORD /d 0 /f
@@ -409,15 +372,9 @@ reg delete "HKLM\Software\Microsoft\VisualStudio\DiagnosticsHub" /v "LogLevel" /
 reg add "HKLM\SOFTWARE\Policies\Microsoft\VisualStudio\IntelliCode" /v "DisableRemoteAnalysis" /t "REG_DWORD" /d "1" /f
 reg add "HKCU\SOFTWARE\Microsoft\VSCommon\16.0\IntelliCode" /v "DisableRemoteAnalysis" /t "REG_DWORD" /d "1" /f
 reg add "HKCU\SOFTWARE\Microsoft\VSCommon\17.0\IntelliCode" /v "DisableRemoteAnalysis" /t "REG_DWORD" /d "1" /f
-echo -- Disabling Media Player telemetry
-reg add "HKCU\SOFTWARE\Microsoft\MediaPlayer\Preferences" /v "UsageTracking" /t REG_DWORD /d 0 /f
-reg add "HKCU\Software\Policies\Microsoft\WindowsMediaPlayer" /v "PreventCDDVDMetadataRetrieval" /t REG_DWORD /d 1 /f
-reg add "HKCU\Software\Policies\Microsoft\WindowsMediaPlayer" /v "PreventMusicFileMetadataRetrieval" /t REG_DWORD /d 1 /f
-reg add "HKCU\Software\Policies\Microsoft\WindowsMediaPlayer" /v "PreventRadioPresetsRetrieval" /t REG_DWORD /d 1 /f
-reg add "HKLM\SOFTWARE\Policies\Microsoft\WMDRM" /v "DisableOnline" /t REG_DWORD /d 1 /f
-echo -- Disabling PowerShell telemetry
+powershell -NoProfile -Command "Write-Host '-- Disabling PowerShell telemetry' -ForegroundColor Green"
 setx POWERSHELL_TELEMETRY_OPTOUT 1
-echo -- Disabling CCleaner telemetry
+powershell -NoProfile -Command "Write-Host '-- Disabling CCleaner telemetry' -ForegroundColor Green"
 reg add "HKCU\Software\Piriform\CCleaner" /v "Monitoring" /t REG_DWORD /d 0 /f
 reg add "HKCU\Software\Piriform\CCleaner" /v "HelpImproveCCleaner" /t REG_DWORD /d 0 /f
 reg add "HKCU\Software\Piriform\CCleaner" /v "SystemMonitoring" /t REG_DWORD /d 0 /f
@@ -430,36 +387,66 @@ reg add "HKLM\Software\Piriform\CCleaner" /v "(Cfg)QuickCleanIpm" /t REG_DWORD /
 reg add "HKLM\Software\Piriform\CCleaner" /v "(Cfg)GetIpmForTrial" /t REG_DWORD /d 0 /f
 reg add "HKLM\Software\Piriform\CCleaner" /v "(Cfg)SoftwareUpdater" /t REG_DWORD /d 0 /f
 reg add "HKLM\Software\Piriform\CCleaner" /v "(Cfg)SoftwareUpdaterIpm" /t REG_DWORD /d 0 /f
-echo -- Disabling Mouse Acceleration
-reg add "HKCU\Control Panel\Mouse" /v "MouseSpeed" /t REG_SZ /d "0" /f
-reg add "HKCU\Control Panel\Mouse" /v "MouseThreshold1" /t REG_SZ /d "0" /f
-reg add "HKCU\Control Panel\Mouse" /v "MouseThreshold2" /t REG_SZ /d "0" /f
-echo -- Set Ultimate Performance Power Plan
+powershell -NoProfile -Command "Write-Host '-- Disabling Adobe updates' -ForegroundColor Green"
+schtasks /change /TN "\Adobe Acrobat Update Task" /DISABLE > NUL 2>&1
+sc config AdobeARMservice start=disabled > NUL 2>&1
+sc config adobeupdateservice start=disabled > NUL 2>&1
+powershell -NoProfile -Command "Write-Host '-- Disabling Game Bar' -ForegroundColor Green
+
+:: Policies (system-wide)
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\GameDVR" ^
+ /v "AllowGameDVR" /t REG_DWORD /d 0 /f
+
+:: GameDVR core capture
+reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR" ^
+ /v "AppCaptureEnabled" /t REG_DWORD /d 0 /f
+
+:: User Game Bar settings
+reg add "HKCU\SOFTWARE\Microsoft\GameBar" ^
+ /v "UseNexusForGameBarEnabled" /t REG_DWORD /d 0 /f
+
+reg add "HKCU\SOFTWARE\Microsoft\GameBar" ^
+ /v "ShowStartupPanel" /t REG_DWORD /d 0 /f
+
+:: Disable Game Bar URI handlers
+for %%K in (ms-gamebar ms-gamebarservices) do (
+    reg add "HKCR\%%K" /v "NoOpenWith" /t REG_SZ /d "" /f
+    reg add "HKCR\%%K" /v "URL Protocol" /t REG_SZ /d "" /f
+    reg add "HKCR\%%K\shell\open\command" ^
+        /ve /t REG_SZ /d "%%SystemRoot%%\System32\systray.exe" /f
+)
+
+powershell -NoProfile -Command "Write-Host '-- Disabling Xbox Screen Recording' -ForegroundColor Green"
+reg add "HKCU\System\GameConfigStore" /v "GameDVR_Enabled" /t REG_DWORD /d 0 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\GameDVR" /v "AllowGameDVR" /t REG_DWORD /d 0 /f
+powershell -NoProfile -Command "Write-Host '-- Setting Cloudflare DNS' -ForegroundColor Green"
+netsh interface ip set dns name="Ethernet" static 1.1.1.1
+netsh interface ip add dns name="Ethernet" 1.0.0.1 index=2
+powershell -NoProfile -Command "Write-Host '-- Set Ultimate Performance Power Plan' -ForegroundColor Green"
 powershell -command "$ultimatePerformance = powercfg -list | Select-String -Pattern 'Ultimate Performance'; if ($ultimatePerformance) { echo '-- - Power plan already exists' } else { echo '-- - Enabling Ultimate Performance'; $output = powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61 2>&1; if ($output -match 'Unable to create a new power scheme' -or $output -match 'The power scheme, subgroup or setting specified does not exist') { powercfg -RestoreDefaultSchemes } }"
 powershell -command "$ultimatePlanGUID = (powercfg -list | Select-String -Pattern 'Ultimate Performance').Line.Split()[3]; echo '-- - Activating Ultimate Performance'; powercfg -setactive $ultimatePlanGUID"
-echo -- Disabling Storage Sense
-reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" /v "01" /t REG_DWORD /d 0 /f
-echo -- Adding End Task to Right-Click
+powershell -NoProfile -Command "Write-Host '-- Adding End Task to Right-Click' -ForegroundColor Green"
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings" /v "TaskbarEndTask" /t REG_DWORD /d "1" /f
-echo -- Moving Taskbar Icons to the left
+powershell -NoProfile -Command "Write-Host '-- Moving Taskbar Icons to the left' -ForegroundColor Green"
 reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarAl /t REG_DWORD /d 0 /f
-echo -- Disabling Num Lock on Startup
+powershell -NoProfile -Command "Write-Host '-- Disabling Num Lock on Startup' -ForegroundColor Green"
 reg add "HKCU\Control Panel\Keyboard" /v "InitialKeyboardIndicators" /t REG_SZ /d "0" /f
-echo -- Enabling Dark Mode
+powershell -NoProfile -Command "Write-Host '-- Enabling Dark Mode' -ForegroundColor Green"
 reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "AppsUseLightTheme" /t REG_DWORD /d 0 /f
 reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v "SystemUsesLightTheme" /t REG_DWORD /d 0 /f
-echo -- Showing File Extensions
+powershell -NoProfile -Command "Write-Host '-- Showing File Extensions' -ForegroundColor Green"
 reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "HideFileExt" /t REG_DWORD /d 0 /f
-echo -- Disabling Sticky Keys
+powershell -NoProfile -Command "Write-Host '-- Disabling Sticky Keys' -ForegroundColor Green"
 reg add "HKCU\Control Panel\Accessibility\StickyKeys" /v "Flags" /t REG_SZ /d "58" /f
-echo -- Disabling Snap Assist Flyout
+powershell -NoProfile -Command "Write-Host '-- Disabling Snap Assist Flyout' -ForegroundColor Green"
 reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "EnableSnapAssistFlyout" /t REG_DWORD /d 0 /f
-echo -- Enabling Detailed BSOD
+powershell -NoProfile -Command "Write-Host '-- Enabling Detailed BSOD' -ForegroundColor Green"
 reg add "HKLM\System\CurrentControlSet\Control\CrashControl" /v "DisplayParameters" /t REG_DWORD /d 1 /f
-echo -- Enabling Verbose Logon
+powershell -NoProfile -Command "Write-Host '-- Enabling Verbose Logon' -ForegroundColor Green"
 reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" /v "VerboseStatus" /t REG_DWORD /d 1 /f
 echo -- Running MAS
 powershell -command "irm https://get.activated.win | iex"
+:: Pause the script
 pause
 :: Restore previous environment
 endlocal
